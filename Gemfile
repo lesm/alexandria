@@ -8,6 +8,9 @@ gem 'pg', '>= 0.18', '< 2.0'
 gem 'puma', '~> 3.11'
 gem 'bootsnap', '>= 1.4.2', require: false
 
+gem 'carrierwave'
+gem 'carrierwave-base64'
+
 group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   gem 'pry', '~> 0.12.2'
