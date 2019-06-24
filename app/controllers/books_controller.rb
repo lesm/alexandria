@@ -1,5 +1,5 @@
 class BooksController < ApplicationController
   def index
-    render json: {}
+    render json: { data: Book.all }
   end
 end
