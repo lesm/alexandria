@@ -1,5 +1,5 @@
 class Book < ApplicationRecord
-  belongs_to :publisher, required: false
+  belongs_to :publisher, optional: true
   belongs_to :author
 
   validates :title, :released_on, :author, presence: true
