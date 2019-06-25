@@ -2,7 +2,6 @@ require 'rails_helper'
 
 RSpec.describe 'Books', type: :request do
   let(:books) { create_list :book, 3 }
-  let(:json_body) { JSON.parse(response.body) }
 
   describe 'GET /api/books' do
     before { books }
