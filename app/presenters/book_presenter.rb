@@ -7,4 +7,3 @@ class BookPresenter < BasePresenter
     @object.cover.url.to_s
   end
 end
-
