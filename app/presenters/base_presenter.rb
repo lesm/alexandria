@@ -1,4 +1,6 @@
 class BasePresenter < SimpleDelegator
+  include ActiveSupport::ToJsonWithActiveSupportEncoder
+
   class << self
     @build_attributes = []
     attr_reader :build_attributes
