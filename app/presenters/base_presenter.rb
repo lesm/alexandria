@@ -1,4 +1,4 @@
-class BasePresenter
+class BasePresenter < SimpleDelegator
   class << self
     @build_attributes = []
     attr_reader :build_attributes
@@ -15,6 +15,7 @@ class BasePresenter
     @params  = params
     @options = options
     @data    = HashWithIndifferentAccess.new
+    super(@object)
   end
 
   def as_json(*)

@@ -7,18 +7,17 @@ class FieldPicker
   end
 
   def pick
-    (validate_fields || pickable).each do |field|
-      value = (presenter.respond_to?(field) ? presenter : presenter.object).send(field)
-      presenter.data[field] = value
+    valid_fields.each do |field|
+      presenter.data[field] = presenter.send(field)
     end
     presenter
   end
 
   private
 
-  def validate_fields
+  def valid_fields
     validated = fields.split(',').select { |f| pickable.include?(f) }
-    validated.any? ? validated : nil
+    validated.any? ? validated : pickable
   end
 
   def pickable
