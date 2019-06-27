@@ -2,7 +2,7 @@ class Filter
   PREDICATES = %w(eq cont notcont start end gt lt)
 
   attr_accessor :scope
-  attr_reader :filters
+  attr_reader :filters, :presenter
 
   def initialize(scope, params)
     @scope     = scope
@@ -12,6 +12,8 @@ class Filter
 
   def filter
     return scope if filters.empty?
+
+    validate_filters
     build_filter_scope
     scope
   end
@@ -26,6 +28,22 @@ class Filter
         predicate: key.split('_').last
       }
     end
+  end
+
+  def validate_filters
+    attributes = presenter.filter_attributes
+    filters.each do |key, data|
+      error!(key, data) if attributes.exclude?(data[:column])
+      error!(key, data) if PREDICATES.exclude?(data[:predicate])
+    end
+  end
+
+  def error!(key, data)
+    columns    = presenter.filter_attributes.join(',')
+    predicates = PREDICATES.join(',')
+
+    raise QueryBuilderError.new("q[#{key}]=#{data[:value]}"),
+      "Invalid Filter params. Allowed columns: #{columns}, 'predicates': #{predicates}"
   end
 
   def build_filter_scope
