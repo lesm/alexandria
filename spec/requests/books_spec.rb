@@ -75,6 +75,30 @@ RSpec.describe 'Books', type: :request do
           expect(response.headers['Link'].split(', ').first).to eq '<http://www.example.com/api/books?page=1&per=2>; rel="first"'
         end
       end
+
+      context "when sending invalid 'page' and 'per' parameters" do
+        before { get('/api/books?page=fake&per=10') }
+
+        it 'receives HTTP status 400' do
+          expect(response).to have_http_status 400
+        end
+      end
+
+      context "when sending invalid 'page' and 'per' parameters" do
+        before { get '/api/books?page=fake&per=10'}
+
+        it 'receives HTTP status 400' do
+          expect(response).to have_http_status 400
+        end
+
+        it 'receives an error key' do
+          expect(json_body['error']).to_not be_nil
+        end
+
+        it "receives 'page=fake' as an invalid param" do
+          expect(json_body['error']['invalid_params']).to eq 'page=fake'
+        end
+      end
     end
   end
 end
