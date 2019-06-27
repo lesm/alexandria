@@ -1,12 +1,20 @@
 class BasePresenter < SimpleDelegator
   include ActiveSupport::ToJsonWithActiveSupportEncoder
 
-  class << self
-    @build_attributes = []
-    attr_reader :build_attributes
+  CLASS_ATTRIBUTES = {
+    build_with: :build_attributes,
+    related_to: :relations,
+    sort_by:    :sort_attributes,
+    filter_by:  :filter_attributes
+  }
 
-    def build_with *args
-      @build_attributes = args.map(&:to_s)
+  class << self
+    attr_accessor *CLASS_ATTRIBUTES.values
+
+    CLASS_ATTRIBUTES.each do |method, instace|
+      define_method method do |*args|
+        instance_variable_set("@#{instace}", args.map(&:to_s))
+      end
     end
   end
 
