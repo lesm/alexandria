@@ -42,5 +42,39 @@ RSpec.describe 'Books', type: :request do
         end
       end
     end
+
+    describe 'pagination' do
+      context 'when asking for the first page' do
+        before { get('/api/books?page=1&per=2') }
+
+        it 'receives HTTP status 200' do
+          expect(response).to have_http_status 200
+        end
+
+        it 'receives only two books' do
+          expect(json_body['data'].size).to eq 2
+        end
+
+        it 'receives a response with the Link header' do
+          expect(response.headers['Link'].split(', ').first).to eq '<http://www.example.com/api/books?page=2&per=2>; rel="next"'
+        end
+      end
+
+      context 'when asking for the second page' do
+        before { get('/api/books?page=2&per=2') }
+
+        it 'receives HTTP status 200' do
+          expect(response).to have_http_status 200
+        end
+
+        it 'receives only one books' do
+          expect(json_body['data'].size).to eq 1
+        end
+
+        it 'receives a response with the Link header' do
+          expect(response.headers['Link'].split(', ').first).to eq '<http://www.example.com/api/books?page=1&per=2>; rel="first"'
+        end
+      end
+    end
   end
 end
