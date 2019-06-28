@@ -12,6 +12,10 @@ class ApplicationController < ActionController::API
     }
   end
 
+  def filter scope
+    Filter.new(scope, params.to_unsafe_hash).filter
+  end
+
   def sort scope
     Sorter.new(scope, params).sort
   end

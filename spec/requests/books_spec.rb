@@ -1,7 +1,18 @@
 require 'rails_helper'
 
 RSpec.describe 'Books', type: :request do
-  let(:books) { create_list :book, 3 }
+  let(:book_1) do
+    create :book,
+      title: 'Ruby Under a Microscope',
+      released_on: '2013-05-9'
+  end
+  let(:book_2) do
+    create :book, title: 'Second book', released_on: '2014-09-9'
+  end
+  let(:book_3) do
+    create :book, title: 'Third book', released_on: '2015-05-6'
+  end
+  let(:books) { [book_1, book_2, book_3] }
 
   describe 'GET /api/books' do
     before { books }
@@ -123,6 +134,32 @@ RSpec.describe 'Books', type: :request do
 
         it "receives 'sort=fid' as an invalid param" do
           expect(json_body['error']['invalid_params']).to eq 'sort=fid'
+        end
+      end
+    end
+
+    describe 'filtering' do
+      context "with valid filtering param 'q[title_cont]=Microscope'" do
+        it "receives 'Ruby under a Microscope' back" do
+          get "/api/books?q[title_cont]=Microscope"
+          expect(json_body['data'].first['id']).to eq book_1.id
+          expect(json_body['data'].size).to eq 1
+        end
+      end
+
+      context "with invalid filtering param 'q[ftitle_cont]=Ruby'" do
+        before { get '/api/books?q[ftitle_cont]=Ruby' }
+
+        it 'gets 400 Bad Request back' do
+          expect(response).to have_http_status 400
+        end
+
+        it 'receives an error' do
+          expect(json_body['error']).to_not be_nil
+        end
+
+        it "receives 'q[ftitle_cont]=Ruby' as an invalid param" do
+          expect(json_body['error']['invalid_params']).to eq 'q[ftitle_cont]=Ruby'
         end
       end
     end
