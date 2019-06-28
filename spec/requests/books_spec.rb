@@ -70,6 +70,35 @@ RSpec.describe 'Books', type: :request do
       end
     end
 
+    describe 'embed picking' do
+      context "with the 'embed' parameter" do
+        before { get '/api/books?embed=author' }
+
+        it 'gets the books with their authors embeded' do
+          json_body['data'].each do |book|
+            expect(book['author'].keys).to eq(
+              %w(id given_name family_name created_at updated_at))
+          end
+        end
+      end
+
+      context "with invalid 'embed' relation 'fake'" do
+        before { get '/api/books?embed=fake,author' }
+
+        it 'gets 400 Bad Request back' do
+          expect(response).to have_http_status 400
+        end
+
+        it 'receives an error' do
+          expect(json_body['error']).to_not be_nil
+        end
+
+        it "receives 'fields=fid' as an invalid param" do
+          expect(json_body['error']['invalid_params']).to eq 'embed=fake'
+        end
+      end
+    end
+
     describe 'pagination' do
       context 'when asking for the first page' do
         before { get('/api/books?page=1&per=2') }
