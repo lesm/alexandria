@@ -1,6 +1,6 @@
 class BooksController < ApplicationController
   def index
-    books = filter(sort(paginate(Book.all))).map do |book|
+    books = eager_load(filter(sort(paginate(Book.all)))).map do |book|
       BookPresenter.new(book, params).fields.embeds
     end
     render json: { data: books }

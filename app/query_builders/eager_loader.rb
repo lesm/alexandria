@@ -10,7 +10,8 @@ class EagerLoader
   end
 
   def load
-    return scope if embed.empty? || associations.empty?
+    return scope if embed.empty? && associations.empty?
+
     validate!('embed', embed)
     validate!('include', associations)
 
