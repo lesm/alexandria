@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe FieldPicker do
   let(:book) { create :book }
-  let(:params) { { fields: 'id,title,subtitle' } }
+  let(:params) { { fields: 'id,title' } }
   let(:presenter) { BookPresenter.new(book, params) }
   let(:field_picker) { FieldPicker.new(presenter) }
 
@@ -13,7 +13,7 @@ RSpec.describe FieldPicker do
   end
 
   describe '#pick' do
-    context "with the 'fields' parameter containing 'id,title,subtitle'" do
+    context "with the 'fields' parameter containing 'id,title'" do
       it "updates the presenter 'data' with the book 'id' and 'title'" do
         expect(field_picker.pick.data).to eq({
           'id'        => book.id,
@@ -45,8 +45,17 @@ RSpec.describe FieldPicker do
         expect(field_picker.pick.data).to eq({
           'id'        => book.id,
           'title'     => book.title,
-          'author_id' => book.author_id
+          'author_id' => book.author.id
         })
+      end
+    end
+
+    context "with invalid attributes 'fid'" do
+      let(:params) { { fields: 'fid,title' } }
+
+      it "raises a 'RepresentationBuilderError'" do
+        expect { field_picker.pick }.to(
+          raise_error(RepresentationBuilderError))
       end
     end
   end

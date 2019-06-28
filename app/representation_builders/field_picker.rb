@@ -1,23 +1,44 @@
 class FieldPicker
-  attr_reader :fields, :presenter
+  attr_reader :presenter
 
   def initialize(presenter)
     @presenter = presenter
-    @fields    = @presenter.params[:fields].to_s
   end
 
   def pick
-    valid_fields.each do |field|
-      presenter.data[field] = presenter.send(field)
-    end
+    build_fields
     presenter
+  end
+
+  def fields
+    @fields ||= validate_fields
   end
 
   private
 
-  def valid_fields
-    validated = fields.split(',').select { |f| pickable.include?(f) }
-    validated.any? ? validated : pickable
+  def validate_fields
+    return pickable if presenter.params[:fields].blank?
+
+    fields = presenter.params[:fields].split(',')
+
+    fields.each do |field|
+      error!(field) if pickable.exclude?(field)
+    end
+
+    fields
+  end
+
+  def build_fields
+    fields.each do |field|
+      presenter.data[field] = presenter.send(field)
+    end
+  end
+
+  def error! field
+    build_attributes = presenter.class.build_attributes.join(',')
+
+    raise RepresentationBuilderError.new("fields=#{field}"),
+      "Invalid Field Pick. Allowed fields: (#{build_attributes})"
   end
 
   def pickable
