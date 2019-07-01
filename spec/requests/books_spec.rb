@@ -209,4 +209,136 @@ RSpec.describe 'Books', type: :request do
       end
     end
   end
+
+  describe 'GET /api/books/:id' do
+    context 'with existing resource' do
+      before { get "/api/books/#{book_1.id}" }
+
+      it 'gets HTTP status 200' do
+        expect(response).to have_http_status 200
+      end
+
+      it 'receives the book_1 as JSON' do
+        expected = { data: BookPresenter.new(book_1, {}).fields.embeds }
+        expect(response.body).to eq expected.to_json
+      end
+    end
+
+    context 'with nonexistent resource' do
+      before { get "/api/books/89898989" }
+
+      it 'gets HTTP status 404' do
+        expect(response).to have_http_status 404
+      end
+
+      it 'receives an error json message' do
+        expect(json_body['error']).to_not be_nil
+      end
+    end
+  end
+
+  describe 'POST /api/books' do
+    let(:author) { create :author }
+    before { post '/api/books', params: { data: params } }
+
+    context 'with valid params' do
+      let(:params) { attributes_for :book, author_id: author.id }
+
+      it 'gets HTTP status 201' do
+        expect(response).to have_http_status 201
+      end
+
+      it 'receives the newly created resource' do
+        expect(json_body['data']['title']).to eq params[:title]
+      end
+
+      it 'adds a record in the database' do
+        expect(Book.count).to eq 1
+      end
+
+      it 'gets the new resource location in the Location header' do
+        expect(response.headers['Location']).to eq(
+          "http://www.example.com/api/books/#{Book.first.id}")
+      end
+    end
+
+    context 'with invalid params' do
+      let(:params) { attributes_for :book, title: '' }
+
+      it 'gets HTTP status 422' do
+        expect(response).to have_http_status 422
+      end
+
+      it 'receives an error details' do
+        expect(json_body['error']['invalid_params']).to eq(
+          {"title" => ["can't be blank"], "author" => ["must exist", "can't be blank"]}
+        )
+      end
+
+      it 'does not add a record in the database' do
+        expect(Book.count).to eq 0
+      end
+    end
+  end
+
+  describe 'PATCH /api/books/:id' do
+    let(:book) { create :book, title: 'The ruby book' }
+    before { patch "/api/books/#{book.id}", params: { data: params } }
+
+    context 'with valid params' do
+      let(:params) { {title: 'The new title'} }
+
+      it 'gets HTTP status 200' do
+        expect(response).to have_http_status 200
+      end
+
+      it "receives the updated resource" do
+        expect(json_body['data']['title']).to eq "The new title"
+      end
+
+      it 'updates the record in the database' do
+        expect(Book.first.title).to eq 'The new title'
+      end
+    end
+
+    context 'with invalid params' do
+      let(:params) { { title: '' } }
+
+      it 'gets HTTP status 422' do
+        expect(response).to have_http_status 422
+      end
+
+      it 'receives an error details' do
+        expect(json_body['error']['invalid_params']).to eq(
+          {"title" => ["can't be blank"]}
+        )
+      end
+
+      it "doesn't update the record in the database" do
+        expect(Book.first.title).to eq 'The ruby book'
+      end
+    end
+  end
+
+  describe 'delete /api/books/:id' do
+    context 'with existing resource' do
+      let(:book) { create :book }
+      before { delete "/api/books/#{book.id}" }
+
+      it 'gets HTTP status 204' do
+        expect(response.status).to eq 204
+      end
+
+      it 'deletes the book from the database' do
+        expect(Book.count).to eq 0
+      end
+    end
+
+    context 'with nonexistent resource' do
+      it 'gets HTTP status 404' do
+        delete '/api/books/898989'
+        expect(response).to have_http_status 404
+      end
+    end
+  end
 end

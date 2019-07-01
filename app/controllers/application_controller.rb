@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::API
   rescue_from QueryBuilderError, with: :builder_error
   rescue_from RepresentationBuilderError, with: :builder_error
+  rescue_from ActiveRecord::RecordNotFound, with: :resource_not_found
 
   protected
 
@@ -12,6 +13,19 @@ class ApplicationController < ActionController::API
         invalid_params: error.invalid_params
       }
     }
+  end
+
+  def unprocessable_entity! resource
+    render status: :unprocessable_entity, json: {
+      error: {
+        message: "Invalid parameters for resource #{resource.class}.",
+        invalid_params: resource.errors
+      }
+    }
+  end
+
+  def resource_not_found error
+    render json: { error: error.message }, status: 404
   end
 
   def orchestrate_query(scope, actions = :all)
