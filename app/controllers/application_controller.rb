@@ -22,4 +22,11 @@ class ApplicationController < ActionController::API
                           actions: actions).run
   end
 
+  def serializer data
+    {
+      json: Alexandria::Serializer.new(data: data,
+                                       params: params,
+                                       actions: [:fields, :embeds]).to_json
+    }
+  end
 end
