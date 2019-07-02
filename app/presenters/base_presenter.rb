@@ -1,5 +1,6 @@
 class BasePresenter < SimpleDelegator
   include ActiveSupport::ToJsonWithActiveSupportEncoder
+  include Rails.application.routes.url_helpers
 
   CLASS_ATTRIBUTES = {
     build_with: :build_attributes,
