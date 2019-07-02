@@ -1,9 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe AuthorsController, type: :request do
-  let(:pat) { create :author, :with_book, given_name: 'Perez' }
-  let(:michael) { create :author, :with_book }
-  let(:sam) { create :author, :with_book }
+  let(:pat) { create :author, :with_a_book, given_name: 'Perez' }
+  let(:michael) { create :author, :with_a_book }
+  let(:sam) { create :author, :with_a_book }
   let(:authors) { [pat, michael, sam] }
 
   describe 'GET /api/authors' do

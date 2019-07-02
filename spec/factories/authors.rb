@@ -4,7 +4,7 @@ FactoryBot.define do
     family_name { Faker::Name.last_name }
   end
 
-  trait :with_book do
+  trait :with_a_book do
     after :create do |author|
       create :book, author: author
     end
