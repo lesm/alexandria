@@ -1,4 +1,7 @@
 class Book < ApplicationRecord
+  include PgSearch
+  multisearchable against: [:title, :subtitle, :description]
+
   belongs_to :publisher, optional: true
   belongs_to :author
 
