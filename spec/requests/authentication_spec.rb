@@ -2,9 +2,10 @@ require 'rails_helper'
 
 RSpec.describe 'Authentication', type: :request do
   describe 'Client Authentication' do
-    let(:headers) do
-      { 'AUTHORIZATION' => "Alexandria-Token api_key=#{key}" }
+    let(:token) do
+      "Alexandria-Token api_key=#{api_key.id}:#{api_key.key}"
     end
+    let(:headers) { { 'AUTHORIZATION' => token } }
 
     before do
       get '/api/books', headers: headers
@@ -12,7 +13,7 @@ RSpec.describe 'Authentication', type: :request do
 
     context 'with invalid authentication scheme' do
       context 'with invalid API Key' do
-        let(:key) { 'fake' }
+        let(:api_key) { OpenStruct.new(id: 1, key: 'fake') }
 
         it 'gets HTTP status 401 Unauthorized' do
           expect(response).to have_http_status 401
@@ -20,8 +21,8 @@ RSpec.describe 'Authentication', type: :request do
       end
 
       context 'with disabled API Key' do
-        let(:key) do
-          create(:api_key).tap { |key| key.disable }.key
+        let(:api_key) do
+          create(:api_key).tap { |key| key.disable }
         end
 
         it 'gets HTTP status 401 Unauthorized' do
@@ -31,7 +32,7 @@ RSpec.describe 'Authentication', type: :request do
     end
 
     context 'with valid API Key' do
-      let(:key) { create(:api_key).key }
+      let(:api_key) { create(:api_key) }
 
       it 'gets HTTP status 200' do
         expect(response).to have_http_status 200

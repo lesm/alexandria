@@ -1,4 +1,5 @@
 module Authentication
+  include ActiveSupport::SecurityUtils
   extend ActiveSupport::Concern
 
   AUTH_SCHEME = 'Alexandria-Token'
@@ -32,11 +33,23 @@ module Authentication
   end
 
   def api_key
+    @api_key ||= compute_apikey
+  end
+
+  def compute_apikey
     return nil if credentials['api_key'].blank?
-    @api_key ||= ApiKey.activated.where(key: credentials['api_key']).first
+
+    id, key = credentials['api_key'].split(':')
+    api_key = id && key && ApiKey.activated.find_by(id: id)
+
+    return api_key if api_key && secure_compare_with_hashing(api_key.key, key)
+  end
+
+  def secure_compare_with_hashing(a,b)
+    secure_compare(Digest::SHA1.hexdigest(a), Digest::SHA1.hexdigest(a))
   end
 
   def credentials
-    @credentials ||= Hash[authorization_request.scan(/(\w+)[:=](\w+)/)]
+    @credentials ||= Hash[authorization_request.scan(/(\w+)[:=]([\w|:]+)/)]
   end
 end

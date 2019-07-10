@@ -1,10 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe SearchController, type: :request do
-  let(:key) { create(:api_key).key }
-  let(:headers) do
-    { 'AUTHORIZATION' => "Alexandria-Token api_key=#{key}" }
+  let(:api_key) { create(:api_key) }
+  let(:token) do
+    "Alexandria-Token api_key=#{api_key.id}:#{api_key.key}"
   end
+  let(:headers) { { 'AUTHORIZATION' => token } }
 
   let(:book_1) { create :book, title: 'Ruby Microscope' }
   let(:book_2) { create :book, title: 'Ruby on Rails Tutorial' }
