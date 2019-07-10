@@ -1,6 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe AuthorsController, type: :request do
+  let(:key) { create(:api_key).key }
+  let(:headers) do
+    { 'AUTHORIZATION' => "Alexandria-Token api_key=#{key}" }
+  end
+
   let(:pat) { create :author, :with_a_book, given_name: 'Perez' }
   let(:michael) { create :author, :with_a_book }
   let(:sam) { create :author, :with_a_book }
@@ -10,7 +15,7 @@ RSpec.describe AuthorsController, type: :request do
     before { authors }
 
     context 'default behavior' do
-      before { get '/api/authors' }
+      before { get '/api/authors', headers: headers }
 
       it 'receives HTTP status 200' do
         expect(response).to have_http_status 200
@@ -27,7 +32,7 @@ RSpec.describe AuthorsController, type: :request do
 
     describe 'field picking' do
       context 'with the fields parameter' do
-        before { get '/api/authors?fields=id,given_name,family_name' }
+        before { get '/api/authors?fields=id,given_name,family_name', headers: headers }
 
         it 'gets authors with only the id, given_name, family_name' do
           json_body['data'].each do |book|
@@ -37,7 +42,7 @@ RSpec.describe AuthorsController, type: :request do
       end
 
       context "without 'fields' parameter" do
-        before { get '/api/authors/' }
+        before { get '/api/authors/', headers: headers }
 
         it 'gets authors with all the fields specified in the presenter' do
           json_body['data'].each do |book|
@@ -47,7 +52,7 @@ RSpec.describe AuthorsController, type: :request do
       end
 
       context "with invalid fields name 'fid'" do
-        before { get '/api/authors?fields=fid,given_name,family_name' }
+        before { get '/api/authors?fields=fid,given_name,family_name', headers: headers }
 
         it 'gets 400 Bad Request back' do
           expect(response).to have_http_status 400
@@ -61,7 +66,7 @@ RSpec.describe AuthorsController, type: :request do
 
     describe 'embed picking' do
       context "with the 'embed' parameter" do
-        before { get '/api/authors?embed=books' }
+        before { get '/api/authors?embed=books', headers: headers }
 
         it 'gets the authors with their books embeded' do
           json_body['data'].each do |author|
@@ -75,7 +80,7 @@ RSpec.describe AuthorsController, type: :request do
       end
 
       context "with invalid 'embed' relation 'fake'" do
-        before { get '/api/authors?embed=fake' }
+        before { get '/api/authors?embed=fake', headers: headers }
 
         it 'gets 400 Bad Reques back' do
           expect(response).to have_http_status 400
@@ -93,7 +98,7 @@ RSpec.describe AuthorsController, type: :request do
 
     describe 'pagination' do
       context 'when asking for the first page' do
-        before { get '/api/authors?page1&per=2' }
+        before { get '/api/authors?page1&per=2', headers: headers }
 
         it 'receives HTTP status 200' do
           expect(response).to have_http_status 200
@@ -109,7 +114,7 @@ RSpec.describe AuthorsController, type: :request do
       end
 
       context 'when asking for the second page' do
-        before { get '/api/authors?page=2&per=2' }
+        before { get '/api/authors?page=2&per=2', headers: headers }
 
         it 'receives HTTP status 200' do
           expect(response).to have_http_status 200
@@ -125,7 +130,7 @@ RSpec.describe AuthorsController, type: :request do
       end
 
       context "when sending invalid 'page' and 'per' parameters" do
-        before { get '/api/authors?page=fake&per=10' }
+        before { get '/api/authors?page=fake&per=10', headers: headers }
 
         it 'receives HTTP status 400' do
           expect(response).to have_http_status 400
@@ -144,13 +149,13 @@ RSpec.describe AuthorsController, type: :request do
     describe 'sorting' do
       context "with valid column name 'id'" do
         it "sorts the authors by 'id desc'" do
-          get '/api/authors?sort=id&dir=desc'
+          get '/api/authors?sort=id&dir=desc', headers: headers
           expect(json_body['data'].first['id']).to eq sam.id
           expect(json_body['data'].last['id']).to eq pat.id
         end
       end
       context "with invalid column name 'fid'" do
-        before { get '/api/authors?sort=fid&dir=asc' }
+        before { get '/api/authors?sort=fid&dir=asc', headers: headers }
 
         it 'gets "400 Bad Request" back' do
           expect(response).to have_http_status 400
@@ -169,14 +174,14 @@ RSpec.describe AuthorsController, type: :request do
     describe 'filtering' do
       context "with valid filtering param 'q[given_name_cont]'" do
         it "receives 'Perez' back" do
-          get "/api/authors?q[given_name_cont]=Perez"
+          get "/api/authors?q[given_name_cont]=Perez", headers: headers
           expect(json_body['data'].first['id']).to eq pat.id
           expect(json_body['data'].size).to eq 1
         end
       end
 
       context "with invalid filtering param 'q[fgiven_name_cont]'" do
-        before { get '/api/authors?q[fgiven_name_cont]=Perez' }
+        before { get '/api/authors?q[fgiven_name_cont]=Perez', headers: headers }
 
         it 'gets 400 Bad Request back' do
           expect(response).to have_http_status 400
@@ -195,7 +200,7 @@ RSpec.describe AuthorsController, type: :request do
 
   describe 'GET /api/authors/:id' do
     context 'with existing resource' do
-      before { get "/api/authors/#{pat.id}" }
+      before { get "/api/authors/#{pat.id}", headers: headers }
 
       it 'gets HTTP status 200' do
         expect(response).to have_http_status 200
@@ -208,7 +213,7 @@ RSpec.describe AuthorsController, type: :request do
     end
 
     context 'with nonexistent resource' do
-      before { get "/api/authors/89898989" }
+      before { get '/api/authors/89898989', headers: headers }
 
       it 'gets HTTP status 404' do
         expect(response).to have_http_status 404
@@ -221,7 +226,7 @@ RSpec.describe AuthorsController, type: :request do
   end
 
   describe 'POST /api/authors' do
-    before { post '/api/authors', params: { data: params } }
+    before { post '/api/authors', params: { data: params }, headers: headers }
 
     context 'with valid params' do
       let(:params) { attributes_for :author }
@@ -264,7 +269,10 @@ RSpec.describe AuthorsController, type: :request do
   end
 
   describe 'PATCH /api/authors/:id' do
-    before { patch "/api/authors/#{pat.id}", params: { data: params } }
+    before do
+      patch "/api/authors/#{pat.id}", params: { data: params }, headers: headers
+    end
+
     context 'with valid params' do
       let(:params) { { given_name: 'Pepito' } }
 
@@ -303,7 +311,7 @@ RSpec.describe AuthorsController, type: :request do
   describe 'DELETE /api/authors/:id' do
     context 'with existing resource' do
       let(:author) { create :author }
-      before { delete "/api/authors/#{author.id}" }
+      before { delete "/api/authors/#{author.id}", headers: headers }
 
       it 'gets HTTP status 204' do
         expect(response.status).to eq 204
@@ -319,7 +327,7 @@ RSpec.describe AuthorsController, type: :request do
 
     context 'with nonexistent resource' do
       it 'gets HTTP status 404' do
-        delete '/api/authors/898989'
+        delete '/api/authors/898989', headers: headers
         expect(response).to have_http_status 404
       end
     end

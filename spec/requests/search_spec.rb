@@ -1,6 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe SearchController, type: :request do
+  let(:key) { create(:api_key).key }
+  let(:headers) do
+    { 'AUTHORIZATION' => "Alexandria-Token api_key=#{key}" }
+  end
+
   let(:book_1) { create :book, title: 'Ruby Microscope' }
   let(:book_2) { create :book, title: 'Ruby on Rails Tutorial' }
   let(:author) { create :author, given_name: 'Sam Ruby' }
@@ -13,7 +18,7 @@ RSpec.describe SearchController, type: :request do
     before { books }
 
     context "with text = 'ruby'" do
-      before { get '/api/search/ruby' }
+      before { get '/api/search/ruby', headers: headers }
 
       it 'gets HTTP status 200' do
         expect(response).to have_http_status 200
