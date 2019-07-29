@@ -13,6 +13,7 @@ gem 'carrierwave-base64'
 gem 'kaminari'
 gem 'pg_search'
 gem 'bcrypt'
+gem 'haml-rails'
 
 group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
