@@ -15,6 +15,11 @@ class User < ApplicationRecord
   validates :confirmation_token, presence: true,
                                  uniqueness: { case_sensitive: true }
 
+
+  def confirm
+    update_columns(confirmation_token: nil, confirmed_at: Time.current)
+  end
+
   private
 
   def generate_confirmation_token
