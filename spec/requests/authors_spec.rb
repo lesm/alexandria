@@ -15,7 +15,7 @@ RSpec.describe AuthorsController, type: :request do
   describe 'GET /api/authors' do
     before { authors }
 
-    context 'default behavior' do
+    context 'default behaviour' do
       before { get '/api/authors', headers: headers }
 
       it 'receives HTTP status 200' do
@@ -131,7 +131,9 @@ RSpec.describe AuthorsController, type: :request do
       end
 
       context "when sending invalid 'page' and 'per' parameters" do
-        before { get '/api/authors?page=fake&per=10', headers: headers }
+        before do
+          get '/api/authors?page=fake&per=10', headers: headers
+        end
 
         it 'receives HTTP status 400' do
           expect(response).to have_http_status 400
@@ -155,8 +157,11 @@ RSpec.describe AuthorsController, type: :request do
           expect(json_body['data'].last['id']).to eq pat.id
         end
       end
+
       context "with invalid column name 'fid'" do
-        before { get '/api/authors?sort=fid&dir=asc', headers: headers }
+        before do
+          get '/api/authors?sort=fid&dir=asc', headers: headers
+        end
 
         it 'gets "400 Bad Request" back' do
           expect(response).to have_http_status 400
@@ -182,9 +187,11 @@ RSpec.describe AuthorsController, type: :request do
       end
 
       context "with invalid filtering param 'q[fgiven_name_cont]'" do
-        before { get '/api/authors?q[fgiven_name_cont]=Perez', headers: headers }
+        before do
+          get '/api/authors?q[fgiven_name_cont]=Perez', headers: headers
+        end
 
-        it 'gets 400 Bad Request back' do
+        it 'gets "400 Bad Request" back' do
           expect(response).to have_http_status 400
         end
 
@@ -192,7 +199,7 @@ RSpec.describe AuthorsController, type: :request do
           expect(json_body['error']).to_not be_nil
         end
 
-        it "receives 'q[fgiven_name_cont]=Ruby' as an invalid param" do
+        it "receives 'q[fgiven_name_cont]=Perez' as an invalid param" do
           expect(json_body['error']['invalid_params']).to eq 'q[fgiven_name_cont]=Perez'
         end
       end
@@ -227,7 +234,9 @@ RSpec.describe AuthorsController, type: :request do
   end
 
   describe 'POST /api/authors' do
-    before { post '/api/authors', params: { data: params }, headers: headers }
+    before do
+      post '/api/authors', params: { data: params }, headers: headers
+    end
 
     context 'with valid params' do
       let(:params) { attributes_for :author }
@@ -318,7 +327,7 @@ RSpec.describe AuthorsController, type: :request do
         expect(response.status).to eq 204
       end
 
-      it 'deletes the book from the database' do
+      it 'deletes the record from the database' do
         expect(Author.count).to eq 0
       end
     end
