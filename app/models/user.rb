@@ -11,7 +11,7 @@ class User < ApplicationRecord
                     length: { maximum: 255 },
                     format: { with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i }
   validates :password, presence: true, length: { maximum: 8 }, if: :new_record?
-  validates :given_name, :family_name, length: { maximum: 100 }
+  validates :given_name, :family_name, presence: true, length: { maximum: 100 }
   validates :confirmation_token, presence: true,
                                  uniqueness: { case_sensitive: true }
 
