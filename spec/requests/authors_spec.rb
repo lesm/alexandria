@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe AuthorsController, type: :request do
-  let(:api_key) { create(:api_key) }
+  let(:api_key) { create :api_key  }
   let(:token) do
     "Alexandria-Token api_key=#{api_key.id}:#{api_key.key}"
   end

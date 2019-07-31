@@ -6,6 +6,8 @@ Rails.application.routes.draw do
     resources :users, except: :put
 
     resources :user_confirmations, only: :show, param: :confirmation_token
+    resources :password_resets, only: [:show, :create, :update],
+                                param: :reset_token
 
     get '/search/:text', to: 'search#index'
   end
