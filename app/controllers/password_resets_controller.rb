@@ -11,6 +11,11 @@ class PasswordResetsController < ApplicationController
     end
   end
 
+  def show
+    reset = PasswordReset.new(reset_token: params[:reset_token])
+    redirect_to reset.redirect_url
+  end
+
   private
 
   def reset

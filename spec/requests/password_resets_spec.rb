@@ -67,4 +67,39 @@ RSpec.describe PasswordResetsController, type: :request do
       end
     end
   end
+
+  describe 'GET /api/password_resets/:reset_token' do
+    context 'with existing user (valid token)' do
+      subject { get "/api/password_resets/#{user.reset_password_token}" }
+
+      context 'with the redirect URL containing parameters' do
+        let(:user) { create :user, :reset_password }
+
+        it 'redirects to "http://example.com?some=params&reset_token=TOKEN"' do
+          token = user.reset_password_token
+          expect(subject).to redirect_to(
+            "http://example.com?some=params&reset_token=#{token}"
+          )
+        end
+      end
+
+      context 'with the redirect URL not containing any parameters' do
+        let(:user) { create :user, :reset_password_no_params }
+
+        it 'redirects to "http://example.com?reset_token=TOKEN"' do
+          expect(subject).to redirect_to(
+            "http://example.com?reset_token=#{user.reset_password_token}"
+          )
+        end
+      end
+    end
+
+    context 'with noexisting user' do
+      before { get '/api/password_resets/123' }
+
+      it 'returns HTTP status 404' do
+        expect(response).to have_http_status 404
+      end
+    end
+  end
 end

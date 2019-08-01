@@ -18,13 +18,13 @@ FactoryBot.define do
 
     trait :reset_password do
       reset_password_token { Faker::Alphanumeric.alphanumeric(8) }
-      reset_password_redirect_url { 'https://www.example.com' }
+      reset_password_redirect_url { 'http://example.com?some=params' }
       reset_password_sent_at { Time.current }
     end
 
     trait :reset_password_no_params do
       reset_password_token { Faker::Alphanumeric.alphanumeric(8) }
-      reset_password_redirect_url { 'https://www.example.com' }
+      reset_password_redirect_url { 'http://example.com' }
       reset_password_sent_at { Time.current }
     end
 
