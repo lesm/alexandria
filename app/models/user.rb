@@ -29,6 +29,16 @@ class User < ApplicationRecord
     save
   end
 
+  def complete_password_reset password
+    assign_attributes({
+      password: password,
+      reset_password_token: nil,
+      reset_password_sent_at: nil,
+      reset_password_redirect_url: nil
+    })
+    save
+  end
+
   private
 
   def generate_confirmation_token
