@@ -17,7 +17,7 @@ RSpec.describe UserMailer, type: :mailer do
   end
 
   describe '#reset_password' do
-    let(:user) { create :user }
+    let(:user) { create :user, :reset_password }
     let(:mail) { UserMailer.reset_password(user) }
 
     it 'renders the heades' do
