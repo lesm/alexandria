@@ -1,5 +1,8 @@
 class ApiKey < ApplicationRecord
   before_validation :generate_key, on: :create
+
+  has_many :access_tokens
+
   validates :key, :active, presence: true
 
   scope :activated, -> { where(active: true) }
