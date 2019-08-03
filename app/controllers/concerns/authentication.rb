@@ -9,11 +9,7 @@ module Authentication
     before_action :authenticate_client
   end
 
-  protected
-
-  def authenticate_client
-    unauthorized!('Client Realm') unless api_key
-  end
+  private
 
   def validate_auth_scheme
     unless authorization_request.match(/^#{AUTH_SCHEME}/)
@@ -21,7 +17,13 @@ module Authentication
     end
   end
 
-  private
+  def authenticate_client
+    unauthorized!('Client Realm') unless api_key
+  end
+
+  def authenticate_user
+    unauthorized!('User Realm') unless access_token
+  end
 
   def unauthorized!(realm)
     headers["WWW-Authenticate"] = %(#{AUTH_SCHEME} realm="#{realm}")
@@ -32,24 +34,19 @@ module Authentication
     @authorization_request ||= request.authorization.to_s
   end
 
+  def authenticator
+    @authenticator ||= Authenticator.new(authorization_request)
+  end
+
   def api_key
-    @api_key ||= compute_apikey
+    @api_key ||= authenticator.api_key
   end
 
-  def compute_apikey
-    return nil if credentials['api_key'].blank?
-
-    id, key = credentials['api_key'].split(':')
-    api_key = id && key && ApiKey.activated.find_by(id: id)
-
-    return api_key if api_key && secure_compare_with_hashing(api_key.key, key)
+  def access_token
+    @access_token ||= authenticator.access_token
   end
 
-  def secure_compare_with_hashing(a,b)
-    secure_compare(Digest::SHA1.hexdigest(a), Digest::SHA1.hexdigest(a))
-  end
-
-  def credentials
-    @credentials ||= Hash[authorization_request.scan(/(\w+)[:=]([\w|:]+)/)]
+  def current_user
+    @current_user ||= access_token.try(:user)
   end
 end
