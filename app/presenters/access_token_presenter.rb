@@ -3,8 +3,8 @@ class AccessTokenPresenter < BasePresenter
              :accessed_at, :created_at, :updated_at
   related_to :user
   sort_by    :id, :user_id, :api_key_id, :accessed_at,
-             :created_at, :updated_at,
-  filter_bu  :id, :user_id, :api_key_id, :accessed_at,
+             :created_at, :updated_at
+  filter_by  :id, :user_id, :api_key_id, :accessed_at,
              :created_at, :updated_at
 
   def token

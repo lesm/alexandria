@@ -1,11 +1,19 @@
 require 'rails_helper'
 
 RSpec.describe AuthorsController, type: :request do
-  let(:api_key) { create :api_key  }
-  let(:token) do
-    "Alexandria-Token api_key=#{api_key.id}:#{api_key.key}"
+  let(:api_key) { create(:api_key) }
+  let(:api_key_str) { "#{api_key.id}:#{api_key.key}" }
+
+  let(:user) { create :user }
+  let(:access_token) do
+    create(:access_token, api_key: api_key, user: user)
   end
-  let(:headers) { { 'AUTHORIZATION' => token } }
+  let(:token) { access_token.generate_token }
+  let(:token_str) { "#{user.id}:#{token}" }
+
+  let(:headers) do
+    { 'AUTHORIZATION' => "Alexandria-Token api_key=#{api_key_str}" }
+  end
 
   let(:pat) { create :author, :with_a_book, given_name: 'Perez' }
   let(:michael) { create :author, :with_a_book }
@@ -234,6 +242,13 @@ RSpec.describe AuthorsController, type: :request do
   end
 
   describe 'POST /api/authors' do
+    let(:headers) do
+      {
+        'AUTHORIZATION' =>
+            "Alexandria-Token api_key=#{api_key_str}, access_token=#{token_str}"
+      }
+    end
+
     before do
       post '/api/authors', params: { data: params }, headers: headers
     end
@@ -279,6 +294,13 @@ RSpec.describe AuthorsController, type: :request do
   end
 
   describe 'PATCH /api/authors/:id' do
+    let(:headers) do
+      {
+        'AUTHORIZATION' =>
+            "Alexandria-Token api_key=#{api_key_str}, access_token=#{token_str}"
+      }
+    end
+
     before do
       patch "/api/authors/#{pat.id}", params: { data: params }, headers: headers
     end
@@ -319,6 +341,13 @@ RSpec.describe AuthorsController, type: :request do
   end
 
   describe 'DELETE /api/authors/:id' do
+    let(:headers) do
+      {
+        'AUTHORIZATION' =>
+            "Alexandria-Token api_key=#{api_key_str}, access_token=#{token_str}"
+      }
+    end
+
     context 'with existing resource' do
       let(:author) { create :author }
       before { delete "/api/authors/#{author.id}", headers: headers }

@@ -2,11 +2,18 @@ require 'rails_helper'
 
 RSpec.describe UsersController, type: :request do
   let(:api_key) { create(:api_key) }
-  let(:token) do
-    "Alexandria-Token api_key=#{api_key.id}:#{api_key.key}"
+  let(:api_key_str) { "#{api_key.id}:#{api_key.key}" }
+
+  let(:access_token) do
+    create(:access_token, api_key: api_key, user: user)
+  end
+  let(:token) { access_token.generate_token }
+  let(:token_str) { "#{user.id}:#{token}" }
+
+  let(:headers) do
+    { 'AUTHORIZATION' => "Alexandria-Token api_key=#{api_key_str}" }
   end
 
-  let(:headers) { { 'AUTHORIZATION' => token } }
   let(:user) do
     create :user, given_name: 'Smith'
   end
@@ -19,6 +26,13 @@ RSpec.describe UsersController, type: :request do
   let(:users) { [user, user_dos, user_tres] }
 
   describe 'GET /api/users' do
+    let(:headers) do
+      {
+        'AUTHORIZATION' =>
+            "Alexandria-Token api_key=#{api_key_str}, access_token=#{token_str}"
+      }
+    end
+
     before { users }
 
     context 'default behaviour' do
@@ -187,6 +201,13 @@ RSpec.describe UsersController, type: :request do
   end
 
   describe 'GET /api/users/:id' do
+    let(:headers) do
+      {
+        'AUTHORIZATION' =>
+            "Alexandria-Token api_key=#{api_key_str}, access_token=#{token_str}"
+      }
+    end
+
     context 'with existing resource' do
       before { get "/api/users/#{user.id}", headers: headers }
 
@@ -259,6 +280,13 @@ RSpec.describe UsersController, type: :request do
   end
 
   describe 'PATCH /api/authors/:id' do
+    let(:headers) do
+      {
+        'AUTHORIZATION' =>
+            "Alexandria-Token api_key=#{api_key_str}, access_token=#{token_str}"
+      }
+    end
+
     before do
       patch "/api/users/#{user.id}", params: { data: params }, headers: headers
     end
@@ -299,6 +327,13 @@ RSpec.describe UsersController, type: :request do
   end
 
   describe 'DELETE /api/users/:id' do
+    let(:headers) do
+      {
+        'AUTHORIZATION' =>
+        "Alexandria-Token api_key=#{api_key_str}, access_token=#{token_str}"
+      }
+    end
+
     context 'with existing resource' do
       let(:author) { create :user }
       before { delete "/api/users/#{user.id}", headers: headers }
