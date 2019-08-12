@@ -32,4 +32,13 @@ FactoryBot.define do
     #confirmed_at { "2019-07-10 15:11:42" }
     #confirmation_sent_at { "2019-07-10 15:11:42" }
   end
+
+  factory :admin, class: User do
+    email { 'admin@example.com' }
+    password { 'password' }
+    given_name { 'Super' }
+    family_name { 'Admin' }
+    confirmed_at { Time.now }
+    role { :admin }
+  end
 end

@@ -1,5 +1,6 @@
 class UserConfirmationsController < ApplicationController
   before_action :confirmation_token_not_found
+  before_action :skip_authorization
 
   def show
     user.confirm

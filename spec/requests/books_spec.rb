@@ -245,6 +245,7 @@ RSpec.describe BooksController, type: :request do
   end
 
   describe 'POST /api/books' do
+    let(:user) { create :admin }
     let(:author) { create :author }
 
     let(:headers) do
@@ -299,6 +300,7 @@ RSpec.describe BooksController, type: :request do
   end
 
   describe 'PATCH /api/books/:id' do
+    let(:user) { create :admin }
     let(:book) { create :book, title: 'The ruby book' }
 
     let(:headers) do
@@ -348,6 +350,7 @@ RSpec.describe BooksController, type: :request do
   end
 
   describe 'DELETE /api/books/:id' do
+    let(:user) { create :admin }
     let(:headers) do
       {
         'AUTHORIZATION' =>

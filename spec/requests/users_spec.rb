@@ -14,18 +14,13 @@ RSpec.describe UsersController, type: :request do
     { 'AUTHORIZATION' => "Alexandria-Token api_key=#{api_key_str}" }
   end
 
-  let(:user) do
-    create :user, given_name: 'Smith'
-  end
-  let(:user_dos) do
-    create :user, given_name: 'Denizet'
-  end
-  let(:user_tres) do
-    create :user, given_name: 'Denizet'
-  end
+  let(:user) { create :user, given_name: 'Smith' }
+  let(:user_dos) { create :user, given_name: 'Denizet' }
+  let(:user_tres) { create :user, given_name: 'Denizet' }
   let(:users) { [user, user_dos, user_tres] }
 
   describe 'GET /api/users' do
+    let(:user) { create :admin, given_name: 'Smith' }
     let(:headers) do
       {
         'AUTHORIZATION' =>

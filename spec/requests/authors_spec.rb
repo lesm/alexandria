@@ -242,6 +242,7 @@ RSpec.describe AuthorsController, type: :request do
   end
 
   describe 'POST /api/authors' do
+    let(:user) { create :admin }
     let(:headers) do
       {
         'AUTHORIZATION' =>
@@ -294,6 +295,7 @@ RSpec.describe AuthorsController, type: :request do
   end
 
   describe 'PATCH /api/authors/:id' do
+    let(:user) { create :admin }
     let(:headers) do
       {
         'AUTHORIZATION' =>
@@ -341,6 +343,7 @@ RSpec.describe AuthorsController, type: :request do
   end
 
   describe 'DELETE /api/authors/:id' do
+    let(:user) { create :admin }
     let(:headers) do
       {
         'AUTHORIZATION' =>

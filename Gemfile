@@ -14,6 +14,7 @@ gem 'kaminari'
 gem 'pg_search'
 gem 'bcrypt'
 gem 'haml-rails'
+gem 'pundit'
 
 group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
